@@ -2,7 +2,6 @@ use yew::{html, Component, ComponentLink, Html, Renderable, ShouldRender, Callba
 use serde_derive::{Deserialize, Serialize};
 use log::*;
 use crate::boundary::boot_app;
-use futures::Future;
 use wasm_bindgen::JsValue;
 use wasm_bindgen_futures::spawn_local;
 use js_sys::JsString;
@@ -46,15 +45,6 @@ pub enum Msg {
   LoadFail(String)
 }
 
-pub fn send_future<F>(callback: Callback<Result<JsValue, JsValue>>, future: F)
-  where
-    F: Future<Output = Result<JsValue, JsValue>> + 'static,
-{
-  spawn_local(async move {
-    callback.emit(future.await);
-  });
-}
-
 fn parse_bootstrap_res(input: Result<JsValue, JsValue>) -> Result<String, JsString> {
   let res = input?;
   let account_val = js_sys::Reflect::get(&res, &JsValue::from_str("account"))?;
@@ -73,10 +63,9 @@ impl Component for App {
       Ok(account) => Msg::LoadSuccess(PlayerState::new(account)),
       Err(e) => Msg::LoadFail(String::from(e))
     });
-    let future = async {
-       boot_app().await
-    };
-    send_future(callback, future);
+    spawn_local(async move {
+      callback.emit(boot_app().await);
+    });
     App {
       state: State::new(),
       // link
