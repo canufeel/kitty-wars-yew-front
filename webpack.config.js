@@ -10,11 +10,11 @@ module.exports = (env, argv) => {
       compress: argv.mode === 'production',
       port: 8000
     },
-    entry: './bootstrap.js',
+    entry: './js/index.js',
     output: {
       path: distPath,
-      filename: "todomvc.js",
-      webassemblyModuleFilename: "todomvc.wasm"
+      filename: "kitty-wars.js",
+      webassemblyModuleFilename: "kitty-wars.wasm"
     },
     plugins: [
       new CopyWebpackPlugin([

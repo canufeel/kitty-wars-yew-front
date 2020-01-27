@@ -1,11 +1,12 @@
 [package]
-name = "yew-wasm-pack-template"
-version = "0.1.0"
-authors = ["Justin Starry <justin.starry@icloud.com"]
+name = "kitty-wars"
+version = "0.0.1"
+authors = ["Petr Kosikhin <petr.kosikhin@gmail.com>"]
 edition = "2018"
 
 [lib]
 crate-type = ["cdylib", "rlib"]
+path = "rs/lib.rs"
 
 [features]
 default = ["console_error_panic_hook"]
@@ -16,7 +17,7 @@ strum = "0.13"
 strum_macros = "0.13"
 serde = "1"
 serde_derive = "1"
-wasm-bindgen = "=0.2.42"
+wasm-bindgen = "0.2.58"
 web_logger = "0.2"
 yew = "0.7"
 
@@ -30,6 +31,9 @@ console_error_panic_hook = { version = "0.1.6", optional = true }
 # compared to the default allocator's ~10K. It is slower than the default
 # allocator, however.
 wee_alloc = { version = "0.4.4", optional = true }
+wasm-bindgen-futures = "0.4.8"
+js-sys = "0.3.35"
+futures = "0.3.1"
 
 [dev-dependencies]
 wasm-bindgen-test = "0.2"
