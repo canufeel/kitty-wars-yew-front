@@ -1,7 +1,6 @@
 use wasm_bindgen::prelude::*;
-use wasm_bindgen_futures::{JsFuture, spawn_local};
+use wasm_bindgen_futures::{JsFuture};
 use js_sys::Promise;
-use futures::executor::block_on;
 
 #[wasm_bindgen(raw_module = "../js/contracts/setup")]
 extern "C" {

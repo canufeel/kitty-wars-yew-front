@@ -4,7 +4,7 @@ use log::*;
 use crate::boundary::boot_app;
 use futures::Future;
 use wasm_bindgen::JsValue;
-use wasm_bindgen_futures::future_to_promise;
+use wasm_bindgen_futures::spawn_local;
 use js_sys::JsString;
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -38,7 +38,7 @@ impl State {
 
 pub struct App {
   state: State,
-  link: ComponentLink<Self>
+  // link: ComponentLink<Self>
 }
 
 pub enum Msg {
@@ -50,12 +50,9 @@ pub fn send_future<F>(callback: Callback<Result<JsValue, JsValue>>, future: F)
   where
     F: Future<Output = Result<JsValue, JsValue>> + 'static,
 {
-  let js_future = async move {
+  spawn_local(async move {
     callback.emit(future.await);
-    Ok(JsValue::NULL)
-  };
-
-  future_to_promise(js_future);
+  });
 }
 
 fn parse_bootstrap_res(input: Result<JsValue, JsValue>) -> Result<String, JsString> {
@@ -82,7 +79,7 @@ impl Component for App {
     send_future(callback, future);
     App {
       state: State::new(),
-      link
+      // link
     }
   }
 
