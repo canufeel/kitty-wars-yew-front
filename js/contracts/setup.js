@@ -1,6 +1,9 @@
 import { getAccount } from './compiled';
 import { getAllContracts } from './contracts';
-import { proxyContractName } from './contract-names';
+import {
+  proxyContractName,
+  battleContractName,
+} from './contract-names';
 
 const max = 9;
 
@@ -9,7 +12,7 @@ const randomInt = (_max) => {
 };
 
 export const joinAndLoot = async () => {
-  const account = getAccount();
+  const account = await getAccount();
   const weaponPower = randomInt(max);
   const armorPower = randomInt(max);
   const {
@@ -21,4 +24,22 @@ export const joinAndLoot = async () => {
   ).send({
     from: account,
   })
+};
+
+const _createBattle = async (battleId = 0) => {
+  const {
+    [battleContractName]: battle,
+  } = await getAllContracts();
+  const account = await getAccount();
+  await battle.startBattle(battleId).send({
+    from: account,
+  });
+};
+
+export const createBattle = async () => {
+  return _createBattle();
+};
+
+export const joinBattle = async (battleId) => {
+  return _createBattle(battleId);
 };

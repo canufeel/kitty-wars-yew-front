@@ -1,4 +1,3 @@
-use serde_derive::{Deserialize, Serialize};
 use std::collections::HashMap;
 use yew::{Html, html, Callback};
 use stdweb::web::event::ClickEvent;

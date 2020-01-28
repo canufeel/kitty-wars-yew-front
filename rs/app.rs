@@ -123,17 +123,17 @@ impl App {
 
 fn view_loading() -> Html {
   html! {
-        <div class="loading">
-            <p>{ "Loading" }</p>
-        </div>
-    }
+    <div class="loading">
+      <p>{ "Loading" }</p>
+    </div>
+  }
 }
 
 
 fn view_load_finished_fail(msg: &str) -> Html {
   html! {
-        <div class="finished">
-            <p>{ format!("Hello, {}", msg) }</p>
-        </div>
-    }
+    <div class="finished">
+      <p>{ format!("Hello, {}", msg) }</p>
+    </div>
+  }
 }

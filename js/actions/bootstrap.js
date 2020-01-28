@@ -1,19 +1,27 @@
 import {
   getAllContractsAndAccount,
 } from '../contracts/compiled';
-import { getItemEvents, getPlayers } from '../contracts/events';
+import {
+  getBattles,
+  getItemEvents,
+  getPlayers,
+} from '../contracts/events';
 
 export const appBoot = async () => {
   const {
-    contracts,
     account
   } =  await getAllContractsAndAccount();
   const items = await getItemEvents();
   const players = await getPlayers();
+  const {
+    battles,
+    isBattling,
+  } = await getBattles();
   return {
-    contracts,
+    battles,
     account,
     items,
     players,
+    isBattling,
   };
 };
