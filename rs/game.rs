@@ -24,36 +24,42 @@ impl Item {
   }
 }
 
-pub struct PlayerItems {
+pub struct Player {
   weapon_id: String,
   armor_id: String,
-  kitty_id: String
+  kitty_id: String,
+  is_battling: bool
 }
 
-impl PlayerItems {
+impl Player {
   pub fn new(
     weapon_id: String,
     armor_id: String,
-    kitty_id: String
+    kitty_id: String,
   ) -> Self {
-    PlayerItems {
+    Player {
       weapon_id,
       armor_id,
-      kitty_id
+      kitty_id,
+      is_battling: false
     }
+  }
+
+  pub fn set_battling(&mut self, is_battling: bool) {
+    self.is_battling = is_battling;
   }
 }
 
 pub struct PlayerState {
   pub account: String,
-  players: HashMap<String, PlayerItems>,
+  players: HashMap<String, Player>,
   items: HashMap<String, Item>
 }
 
 impl PlayerState {
   pub fn new(
     account: String,
-    players: HashMap<String, PlayerItems>,
+    players: HashMap<String, Player>,
     items: HashMap<String, Item>
   ) -> Self {
     PlayerState {

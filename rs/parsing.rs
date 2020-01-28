@@ -1,5 +1,5 @@
 use js_sys::{JsString, Reflect, Object};
-use crate::game::{PlayerState, PlayerItems, ItemType, Item};
+use crate::game::{PlayerState, Player, ItemType, Item};
 use wasm_bindgen::JsValue;
 use std::collections::HashMap;
 
@@ -14,10 +14,10 @@ pub fn parse_js_value_prop_as_string(obj: &JsValue, key: &str) -> Result<String,
 fn get_hash_interface<T, F>(
   state: &JsValue,
   outer_key: &str,
-  prop_parser: F
+  mut prop_parser: F
 ) -> Result<HashMap<String, T>, JsString>
   where T: Sized,
-    F: Fn(&JsValue, String, &mut HashMap<String, T>) -> Result<(), JsString>
+    F: FnMut(&JsValue, String, &mut HashMap<String, T>) -> Result<(), JsString>
 {
   let players_val = Reflect::get(&state, &JsValue::from_str(outer_key))?;
   let obj = match Object::try_from(&players_val) {
@@ -37,17 +37,17 @@ fn get_hash_interface<T, F>(
   Ok(hash)
 }
 
-fn parse_players(state: &JsValue) -> Result<HashMap<String, PlayerItems>, JsString> {
-  let parser = |value: &JsValue, rs_key: String, hash: &mut HashMap<String, PlayerItems>| -> Result<(), JsString> {
+fn parse_players(state: &JsValue) -> Result<HashMap<String, Player>, JsString> {
+  let parser = |value: &JsValue, rs_key: String, hash: &mut HashMap<String, Player>| -> Result<(), JsString> {
     let weapon_id = parse_js_value_prop_as_string(&value, "weaponId")?;
     let armor_id = parse_js_value_prop_as_string(&value, "armorId")?;
     let kitty_id = parse_js_value_prop_as_string(&value, "kittyId")?;
-    let player_items = PlayerItems::new(
+    let player = Player::new(
       weapon_id,
       armor_id,
       kitty_id
     );
-    hash.insert(rs_key, player_items);
+    hash.insert(rs_key, player);
     Ok(())
   };
   get_hash_interface(state, "players", parser)
@@ -72,10 +72,27 @@ fn parse_items(state: &JsValue) -> Result<HashMap<String, Item>, JsString> {
   get_hash_interface(state, "items", parser)
 }
 
+fn parse_is_battling(state: &JsValue, players_hash: &mut HashMap<String, Player>) -> Result<(), JsString> {
+  let parser = |value: &JsValue, rs_key: String, _hash: &mut HashMap<String, ()>| -> Result<(), JsString> {
+    let bool_value = match value.as_bool() {
+      Some(v) => Ok(v),
+      None => Err(JsString::from("Property is not a bool"))
+    }?;
+    match players_hash.get_mut(&rs_key) {
+      Some(player) => { player.set_battling(bool_value); },
+      _ => {}
+    };
+    Ok(())
+  };
+  get_hash_interface(state, "isBattling", parser)?;
+  Ok(())
+}
+
 pub fn parse_bootstrap_res(input: Result<JsValue, JsValue>) -> Result<PlayerState, JsString> {
   let res = input?;
   let account_val = parse_js_value_prop_as_string(&res, "account")?;
-  let players_hash = parse_players(&res)?;
+  let mut players_hash = parse_players(&res)?;
+  parse_is_battling(&res, &mut players_hash)?;
   let items_hash = parse_items(&res)?;
   Ok(PlayerState::new(account_val, players_hash, items_hash))
 }
