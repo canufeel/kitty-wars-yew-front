@@ -1,4 +1,4 @@
-use yew::{html, Component, ComponentLink, Html, Renderable, ShouldRender};
+use yew::{html, Component, ComponentLink, Html, ShouldRender, Callback};
 use log::*;
 use crate::{
   boundary::{boot_app, join_and_loot},
@@ -6,6 +6,7 @@ use crate::{
   parsing
 };
 use wasm_bindgen_futures::spawn_local;
+use stdweb::web::event::ClickEvent;
 
 pub struct State {
   player_state: Option<PlayerState>,
@@ -42,8 +43,8 @@ impl Component for App {
   type Message = Msg;
   type Properties = ();
 
-  fn create(_: Self::Properties, mut link: ComponentLink<Self>) -> Self {
-    let callback = link.send_back(|_| Msg::PlayerStateRequest);
+  fn create(_: Self::Properties, link: ComponentLink<Self>) -> Self {
+    let callback = link.callback(|_| Msg::PlayerStateRequest);
     callback.emit(0);
     App {
       state: State::new(),
@@ -55,7 +56,7 @@ impl Component for App {
     match msg {
       Msg::PlayerStateRequest => {
         self.state.load_finished = false;
-        let callback = self.link.send_back(|input| match parsing::parse_bootstrap_res(input) {
+        let callback = self.link.callback(|input| match parsing::parse_bootstrap_res(input) {
           Ok(player_state) => Msg::LoadSuccess(player_state),
           Err(e) => Msg::LoadFail(String::from(e))
         });
@@ -75,7 +76,7 @@ impl Component for App {
         self.state.load_finished = true;
       },
       Msg::Join => {
-        let callback = self.link.send_back(|_| Msg::PlayerStateRequest);
+        let callback = self.link.callback(|_| Msg::PlayerStateRequest);
         self.state.is_joining = true;
         spawn_local(async move {
           callback.emit(join_and_loot().await);
@@ -83,6 +84,25 @@ impl Component for App {
       }
     }
     true
+  }
+
+  fn view(&self) -> Html {
+    info!("rendered!");
+    let onjoin = self.link.callback(|_| Msg::Join);
+    html! {
+      <div class="root">
+          {
+            match self.get_render_state() {
+              RenderState::LoadingFailed(msg) => view_load_finished_fail(msg),
+              RenderState::LoadingSuccess(player_state) => view_load_finished(
+                player_state,
+                onjoin
+              ),
+              RenderState::Loading => view_loading()
+            }
+          }
+      </div>
+    }
   }
 }
 
@@ -105,26 +125,7 @@ impl App {
   }
 }
 
-impl Renderable<App> for App {
-  fn view(&self) -> Html<Self> {
-    info!("rendered!");
-    html! {
-            <div class="root">
-                {
-                  match self.get_render_state() {
-                    RenderState::LoadingFailed(msg) => view_load_finished_fail(msg),
-                    RenderState::LoadingSuccess(player_state) => view_load_finished(
-                      player_state
-                    ),
-                    RenderState::Loading => view_loading()
-                  }
-                }
-            </div>
-        }
-  }
-}
-
-fn view_loading() -> Html<App> {
+fn view_loading() -> Html {
   html! {
         <div class="loading">
             <p>{ "Loading" }</p>
@@ -133,7 +134,7 @@ fn view_loading() -> Html<App> {
 }
 
 
-fn view_load_finished_fail(msg: &str) -> Html<App> {
+fn view_load_finished_fail(msg: &str) -> Html {
   html! {
         <div class="finished">
             <p>{ format!("Hello, {}", msg) }</p>
@@ -143,11 +144,12 @@ fn view_load_finished_fail(msg: &str) -> Html<App> {
 
 fn view_load_finished(
   player_state: &PlayerState,
-) -> Html<App> {
+  on_join: Callback<ClickEvent>
+) -> Html {
   let load_finished_data = match player_state.has_player_for_account() {
     true => html!{ {""} },
     false => html! {
-      <button onclick=|_| Msg::Join>{ "Join" }</button>
+      <button onclick=on_join>{ "Join" }</button>
     }
   };
   html! {

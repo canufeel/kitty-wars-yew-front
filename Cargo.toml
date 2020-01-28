@@ -1,6 +1,9 @@
 [package]
 name = "kitty-wars"
 version = "0.0.1"
+description = "Kitty 😼 Wars front-end app"
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/canufeel/kitty-wars-yew-front"
 authors = ["Petr Kosikhin <petr.kosikhin@gmail.com>"]
 edition = "2018"
 
@@ -19,7 +22,7 @@ serde = "1"
 serde_derive = "1"
 wasm-bindgen = "0.2.58"
 web_logger = "0.2"
-yew = "0.7"
+yew = "0.11"
 
 # The `console_error_panic_hook` crate provides better debugging of panics by
 # logging them with `console.error`. This is great for development, but requires
@@ -34,6 +37,7 @@ wee_alloc = { version = "0.4.4", optional = true }
 wasm-bindgen-futures = "0.4.8"
 js-sys = "0.3.35"
 futures = "0.3.1"
+stdweb = "0.4.20"
 
 [dev-dependencies]
 wasm-bindgen-test = "0.2"

@@ -1,5 +1,6 @@
 use serde_derive::{Deserialize, Serialize};
 use std::collections::HashMap;
+use yew::{Html, html};
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct PlayerItems {
@@ -41,5 +42,9 @@ impl PlayerState {
 
   pub fn has_player_for_account(&self) -> bool {
     self.players.contains_key(&self.account)
+  }
+
+  pub fn get_player_details(&self) -> Html {
+    html!{ {""} }
   }
 }
