@@ -4,8 +4,7 @@ use js_sys::Promise;
 
 #[wasm_bindgen(raw_module = "../js/contracts/setup")]
 extern "C" {
-  fn loot();
-  fn join();
+  fn joinAndLoot() -> Promise;
 }
 
 #[wasm_bindgen(raw_module = "../js/actions/bootstrap")]
@@ -15,6 +14,12 @@ extern "C" {
 
 pub async fn boot_app() -> Result<JsValue, JsValue> {
   let promise = appBoot();
+  let future = JsFuture::from(promise);
+  future.await
+}
+
+pub async fn join_and_loot() -> Result<JsValue, JsValue> {
+  let promise = joinAndLoot();
   let future = JsFuture::from(promise);
   future.await
 }

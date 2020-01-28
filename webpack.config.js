@@ -5,6 +5,7 @@ const CopyWebpackPlugin = require('copy-webpack-plugin');
 const distPath = path.resolve(__dirname, "dist");
 module.exports = (env, argv) => {
   return {
+    devtool: 'cheap-eval-source-map',
     devServer: {
       contentBase: distPath,
       compress: argv.mode === 'production',
