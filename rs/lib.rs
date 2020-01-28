@@ -1,6 +1,8 @@
 #![recursion_limit = "512"]
 
 pub mod boundary;
+pub mod parsing;
+pub mod game;
 mod app;
 mod utils;
 
