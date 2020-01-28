@@ -8,12 +8,12 @@ export const appBoot = async () => {
     contracts,
     account
   } =  await getAllContractsAndAccount();
-  const itemEvents = await getItemEvents();
+  const items = await getItemEvents();
   const players = await getPlayers();
   return {
     contracts,
     account,
-    itemEvents,
+    items,
     players,
   };
 };

@@ -7,7 +7,25 @@ export const getItemEvents = async () => {
     [itemOwnershipContractName]: itemOwnership,
   } = await getAllContracts();
   const events = await itemOwnership.getPastEvents('ItemForged');
-  return events.map(evt => evt.returnValues);
+  const eventsHash = {};
+  events.forEach(
+    (
+      {
+        returnValues: {
+          itemId,
+          itemType,
+          itemPower,
+        }
+      }
+    ) => {
+      eventsHash[itemId] = {
+        itemId,
+        itemType,
+        itemPower,
+      };
+    }
+  );
+  return eventsHash;
 };
 
 export const getPlayers = async () => {

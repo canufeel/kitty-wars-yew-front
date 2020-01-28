@@ -1,4 +1,4 @@
-use yew::{html, Component, ComponentLink, Html, ShouldRender, Callback};
+use yew::{html, Component, ComponentLink, Html, ShouldRender};
 use log::*;
 use crate::{
   boundary::{boot_app, join_and_loot},
@@ -6,7 +6,6 @@ use crate::{
   parsing
 };
 use wasm_bindgen_futures::spawn_local;
-use stdweb::web::event::ClickEvent;
 
 pub struct State {
   player_state: Option<PlayerState>,
@@ -88,19 +87,16 @@ impl Component for App {
 
   fn view(&self) -> Html {
     info!("rendered!");
-    let onjoin = self.link.callback(|_| Msg::Join);
+    let on_join = self.link.callback(|_| Msg::Join);
     html! {
       <div class="root">
-          {
-            match self.get_render_state() {
-              RenderState::LoadingFailed(msg) => view_load_finished_fail(msg),
-              RenderState::LoadingSuccess(player_state) => view_load_finished(
-                player_state,
-                onjoin
-              ),
-              RenderState::Loading => view_loading()
-            }
+        {
+          match self.get_render_state() {
+            RenderState::LoadingFailed(msg) => view_load_finished_fail(msg),
+            RenderState::LoadingSuccess(player_state) => player_state.get_player_details(on_join),
+            RenderState::Loading => view_loading()
           }
+        }
       </div>
     }
   }
@@ -138,24 +134,6 @@ fn view_load_finished_fail(msg: &str) -> Html {
   html! {
         <div class="finished">
             <p>{ format!("Hello, {}", msg) }</p>
-        </div>
-    }
-}
-
-fn view_load_finished(
-  player_state: &PlayerState,
-  on_join: Callback<ClickEvent>
-) -> Html {
-  let load_finished_data = match player_state.has_player_for_account() {
-    true => html!{ {""} },
-    false => html! {
-      <button onclick=on_join>{ "Join" }</button>
-    }
-  };
-  html! {
-        <div class="finished">
-            <p>{ format!("Hello, {}", player_state.account) }</p>
-            { load_finished_data }
         </div>
     }
 }
